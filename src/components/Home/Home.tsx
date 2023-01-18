@@ -4,6 +4,8 @@ import { useContext, useState } from 'react';
 import Slime from "../../assets/slime.png"
 import { useUsername } from '../../contexts/Username';
 
+import Button from '@mui/material/Button';
+
 function Home() {
     const [roomcode, setroomcode] = useState(String)
     const [, setUsername] = useUsername()
@@ -11,8 +13,9 @@ function Home() {
     return (
         <div>
             <h1>
-                Welcome to RPG Together! <img src={Slime} />
+                Welcome to RPG Together!
             </h1>
+            <img src={Slime} draggable="false"/>
             <h2>
                 Create or join a room below!
             </h2>
@@ -24,9 +27,9 @@ function Home() {
                     setUsername(event.target.value)
                 }} />
                 <Link to={`/room/${roomcode}`}>
-                    <button type="submit">
+                    <Button variant="contained" type="submit">
                         Join room
-                    </button>
+                    </Button>
                 </Link>
             </form>
         </div>
