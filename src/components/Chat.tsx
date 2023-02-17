@@ -1,6 +1,5 @@
-import './Chat.css';
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import io from 'socket.io-client'
 
 
 type RoomProp = {
@@ -48,14 +47,9 @@ function Chat(props: RoomProp) {
         )}
       </div>
       <form onSubmit={submitForm}>
-        <input
-          autoFocus
-          value={value}
-          placeholder="Type your message"
-          onChange={(e) => {
+      <input type="text" id="outlined-basic" autoFocus value={value} placeholder="Type your message" onChange={(e) => {
             setValue(e.currentTarget.value);
-          }}
-        />
+          }}/>
       </form>
     </div>
   );

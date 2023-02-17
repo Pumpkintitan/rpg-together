@@ -1,9 +1,8 @@
-import './Room.css';
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import { useUsername } from '../../contexts/Username';
+import { useUsername } from '../contexts/Username';
 
-import Chat from "../Chat/Chat"
+import Chat from "../components/Chat"
 
 
 type RoomProp = {
