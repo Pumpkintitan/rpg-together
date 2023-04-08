@@ -1,55 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client'
-
+import React, { useState, useEffect, useRef } from 'react';
+import io from 'socket.io-client';
 
 type RoomProp = {
-  socket: any
-}
+  socket: any;
+};
 
 type Message = {
-  id: string,
-  user: string,
-  value: string,
-  time: number
-}
+  type: string;
+  id: string;
+  user: string;
+  value: string;
+  time: number;
+};
 
 function Chat(props: RoomProp) {
-  const [messages, setmessages] = useState<Message[]>([])
-
+  const [messages, setmessages] = useState<Message[]>([]);
   const [value, setValue] = useState('');
+
   const submitForm = (e: any) => {
     e.preventDefault();
-    props.socket.emit('message', value);
+    if (value != '') {
+      props.socket.emit('message', value);
+    }
     setValue('');
   };
 
+  useEffect(() => {
+    const element = document.getElementById('message-holder');
+    if (element) {
+      if (
+        element.scrollTop + element.clientHeight >=
+        element.scrollHeight - 300
+      ) {
+        element.scrollTop = element.scrollHeight;
+      }
+    }
+  }, [messages]);
+
   const handleMessage = (message: Message) => {
     props.socket.off('message', handleMessage);
-    let tempmess = [...messages]
-    let mess = message
-    tempmess.push(mess)
-    setmessages(tempmess)
-  }
+    setmessages([...messages, message]);
+  };
 
-  props.socket.on("message", handleMessage)
-
-
+  props.socket.on('message', handleMessage);
 
   return (
-    <div>
-      <div>
-        {messages.map(message => 
-        <div className="message" key={message.id}>
-          <span className="time">{new Date(message.time).toLocaleTimeString()}</span> &nbsp;&nbsp;
-          <span className="username">{message.user}:</span>&nbsp;&nbsp;
-          <span className="message-value">{message.value}</span>
-        </div>
-        )}
+    <div className="chat-box">
+      <div id="message-holder">
+        {messages.map((message) => {
+          if (message.type == "user") {
+            return (
+              <div className="message" key={message.id}>
+                <span className="time">
+                  {new Date(message.time).toLocaleTimeString([], { timeStyle: "short", })}
+                </span>
+                &nbsp;&nbsp;
+                <span className="username">{message.user}:</span>&nbsp;
+                <span className="message-value">{message.value}</span>
+              </div>
+            )
+          } else if (message.type == "server") {
+            return (
+              <div className="message" key={message.id}>
+                <span className="time">
+                  {new Date(message.time).toLocaleTimeString([], { timeStyle: "short", })}
+                </span>
+                &nbsp;&nbsp;
+                <span className="message-value">{message.value}</span>
+              </div>
+            )
+          }
+        })}
       </div>
-      <form onSubmit={submitForm}>
-      <input type="text" id="outlined-basic" autoFocus value={value} placeholder="Type your message" onChange={(e) => {
+      <form onSubmit={submitForm} className="chat-input">
+        <input
+          type="text"
+          autoFocus
+          value={value}
+          placeholder="Type your message"
+          onChange={(e) => {
             setValue(e.currentTarget.value);
-          }}/>
+          }}
+        />
       </form>
     </div>
   );
