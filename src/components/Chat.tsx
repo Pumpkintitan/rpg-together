@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ReactNodeArray } from 'react';
+import reactStringReplace from 'react-string-replace';
 import io from 'socket.io-client';
 
 type RoomProp = {
@@ -11,6 +12,8 @@ type Message = {
   user: string;
   value: string;
   time: number;
+  nodeArray: ReactNodeArray;
+  color: string;
 };
 
 function Chat(props: RoomProp) {
@@ -39,7 +42,33 @@ function Chat(props: RoomProp) {
 
   const handleMessage = (message: Message) => {
     props.socket.off('message', handleMessage);
+    if (message.type == 'server') {
+      message.nodeArray = getUsers(message);
+    } else {
+      message.color = genColor(message.user);
+    }
     setmessages([...messages, message]);
+  };
+
+  const genColor = (name: string): string => {
+    let total: number = 0;
+    for (const char of name) {
+      total += char.charCodeAt(0);
+    }
+    return `hsl(${total % 360},100%,40%)`;
+  };
+
+  const getUsers = (message: Message) => {
+    const users = message.user.split('|');
+    let newMessage = reactStringReplace(message.value);
+    for (const user of users) {
+      if (user != '') {
+        newMessage = reactStringReplace(newMessage, user, (match, i) => (
+          <span style={{ color: genColor(match) }}>{match}</span>
+        ));
+      }
+    }
+    return newMessage;
   };
 
   props.socket.on('message', handleMessage);
@@ -48,27 +77,34 @@ function Chat(props: RoomProp) {
     <div className="chat-box">
       <div id="message-holder">
         {messages.map((message) => {
-          if (message.type == "user") {
+          if (message.type == 'user') {
             return (
               <div className="message" key={message.id}>
                 <span className="time">
-                  {new Date(message.time).toLocaleTimeString([], { timeStyle: "short", })}
+                  {new Date(message.time).toLocaleTimeString([], {
+                    timeStyle: 'short',
+                  })}
                 </span>
                 &nbsp;&nbsp;
-                <span className="username">{message.user}:</span>&nbsp;
+                <span className="username" style={{ color: message.color }}>
+                  {message.user}
+                </span>
+                :&nbsp;
                 <span className="message-value">{message.value}</span>
               </div>
-            )
-          } else if (message.type == "server") {
+            );
+          } else if (message.type == 'server') {
             return (
               <div className="message" key={message.id}>
                 <span className="time">
-                  {new Date(message.time).toLocaleTimeString([], { timeStyle: "short", })}
+                  {new Date(message.time).toLocaleTimeString([], {
+                    timeStyle: 'short',
+                  })}
                 </span>
                 &nbsp;&nbsp;
-                <span className="message-value">{message.value}</span>
+                <span className="message-value">{message.nodeArray}</span>
               </div>
-            )
+            );
           }
         })}
       </div>

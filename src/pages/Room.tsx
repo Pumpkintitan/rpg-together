@@ -2,29 +2,32 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { useUsername } from '../contexts/Username';
 
-import Chat from "../components/Chat"
-
+import Chat from '../components/Chat';
+import Controls from '../components/Controls';
+import Game from '../components/Game';
 
 type RoomProp = {
-  roomid: string
-  socket: any
-}
-
+  roomid: string;
+  socket: any;
+};
 
 function Room(props: RoomProp) {
-  const [username,] = useUsername()
+  const [username] = useUsername();
 
   useEffect(() => {
-    props.socket.emit("joinroom", { roomid: props.roomid, username: username })
+    console.log(props.socket);
+    props.socket.emit('joinroom', { roomid: props.roomid, username: username });
   }, [props.socket]);
 
   return (
-    <div className='room'>
-      <h1 style={{ textAlign: 'center' }}>{props.roomid} - {username}</h1>
-      <div className='container'>
+    <div className="room">
+      <h1 style={{ textAlign: 'center' }}>
+        {props.roomid} - {username}
+      </h1>
+      <div className="container">
         <div>
-          <div style={{ height: "500px", width: "700px", backgroundColor: "#ffdddd" }}></div>
-          <div style={{ height: "200px", width: "700px", backgroundColor: "#ddffdd" }}></div>
+          <Game />
+          <Controls socket={props.socket} />
         </div>
         <Chat socket={props.socket} />
       </div>

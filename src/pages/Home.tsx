@@ -8,7 +8,7 @@ function Home() {
   const [, setUsername] = useUsername();
 
   return (
-    <div className='home'>
+    <div className="home">
       <img src={Candy} style={{ height: '400px' }} draggable="false" />
       <h2>Create or join a room below!</h2>
       <form>
